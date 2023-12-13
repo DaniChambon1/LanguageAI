@@ -1,6 +1,5 @@
 import pandas as pd
 import re
-import regex
 combined = pd.read_csv("combined_data_english.csv")
 
 
@@ -14,7 +13,7 @@ def capital(dataset):
                 count += 1
         count_list.append(count)
         stand_list.append(count / len(dataset['post'][i]))
-    return count_list
+    return count_list, stand_list
 
 
 def emoticons(dataset):
@@ -31,8 +30,7 @@ def emoticons(dataset):
     return count_emoticons
 
 count_emoticons = emoticons(combined)
-capital_count = capital(combined)
+capital_count, stand_capital = capital(combined)
 combined['capital count'] = capital_count
+combined['capital count (stand.)'] = stand_capital
 combined['emoticon presence'] = count_emoticons
-print(combined['emoticon presence'].corr(combined['birth_year']))
-print(combined['capital count'].corr(combined['birth_year']))
