@@ -48,5 +48,5 @@ class FeatureExtractor:
 FE = FeatureExtractor("data/cleaned_combined_data_english.csv", "data/final_combined_data_english.csv")
 
 # Execute the function word_count and add the feature to the final dataset.
-# FE.word_count()
+FE.word_count()
 FE.drop_features(['word_count'])
