@@ -1,7 +1,6 @@
 import pandas as pd
 import re
-combined = pd.read_csv("combined_data_english.csv")
-
+from data_cleaning import combined_gen
 
 def capital(dataset):
     count_list = []
@@ -19,9 +18,8 @@ def capital(dataset):
 def emoticons(dataset):
     count_emoticons = []
     for i in range(len(dataset)) :  
-        emoticon_pattern = r'(:-?\)|:-?D|;-?\)|:-?P|:-?\(|:-?\/|:-?O|<3)'
+        emoticon_pattern = r'(:-?\))'
         emoticons = re.findall(emoticon_pattern, dataset['post'][i])
-
         if emoticons:
             count_emoticons.append(1)
         else:
@@ -29,8 +27,7 @@ def emoticons(dataset):
             
     return count_emoticons
 
-count_emoticons = emoticons(combined)
-capital_count, stand_capital = capital(combined)
-combined['capital count'] = capital_count
-combined['capital count (stand.)'] = stand_capital
-combined['emoticon presence'] = count_emoticons
+
+
+combined_gen['capital count'], combined_gen['capital count (stand.)'] =  capital(combined_gen)
+combined_gen['emoticon presence'] = emoticons(combined_gen)
