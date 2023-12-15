@@ -1,5 +1,7 @@
 import pandas as pd
 import re
+from nltk import word_tokenize, pos_tag, pos_tag_sents
+from collections import Counter
 
 class FeatureExtractor: 
 
@@ -35,6 +37,23 @@ class FeatureExtractor:
 
         # Add feature to csv
         self.add_feature(df_feature)
+
+    def pos_count(self):
+        noun_counts = []
+        df_feature = self.original_df[:20]
+        posts = df_feature['post'].tolist()
+        tagged_posts = pos_tag_sents(map(word_tokenize, posts))
+        df_feature['pos'] = tagged_posts
+        
+        for ind in df_feature.index:
+            noun_count = 0
+            for (word, tag) in df_feature['pos'][ind]:
+                if tag.startswith('N'):
+                    noun_count += 1
+            noun_counts.append(noun_count)
+        
+        df_feature['noun_count'] = noun_counts
+        print(df_feature)
     
     def drop_features(self, column_names: list): 
         df_features = pd.read_csv(self.new_path, index_col=[0])
@@ -48,5 +67,5 @@ class FeatureExtractor:
 FE = FeatureExtractor("data/cleaned_combined_data_english.csv", "data/final_combined_data_english.csv")
 
 # Execute the function word_count and add the feature to the final dataset.
-FE.word_count()
-FE.drop_features(['word_count'])
+FE.pos_count()
+#FE.drop_features(['word_count'])
