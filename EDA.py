@@ -29,19 +29,18 @@ nr_male_authors = len(grouped2) - nr_female_authors
 print(f"The total number of authors is {len(grouped2)}. The number of male authors is {nr_male_authors} and the number of female authors is {nr_female_authors}.")
 
 
-# Get the number of millenials and gen z
-nr_millennials = sum(combined_gen['Millennial'])
-nr_genz = len(combined_gen) - nr_millennials
+### Get the number of millenials and gen z
+nr_millennials = len(combined_gen[combined_gen["Millennial"] == 1])
+nr_genz = len(combined_gen[combined_gen["Millennial"] == 0])
 print(f"The number of millenials is {nr_millennials}. The number of persons classified as gen z is {nr_genz}.")
 
 
-# Get the number of millenials and gen z that are male vs female
-female_data = combined_gen[combined_gen["female"] == 1]
-nr_female_millennials = sum(female_data['Millennial'])
-nr_female_genz = len(female_data) - nr_female_millennials
+### Get the number of millenials and gen z posts that are male vs female
+nr_female_millennials = len(combined_gen[(combined_gen["female"] == 1) & (combined_gen["Millennial"] == 1)])
+nr_female_genz = len(combined_gen[(combined_gen["female"] == 1) & (combined_gen["Millennial"] == 0)])
 print(f"The number of female millenials is {nr_female_millennials}. The number of females classified as gen z is {nr_female_genz}.")
 
-male_data = combined_gen[combined_gen["female"] == 0]
-nr_male_millennials = sum(male_data['Millennial'])
-nr_male_genz = len(male_data) - nr_male_millennials
+nr_male_millennials = len(combined_gen[(combined_gen["female"] == 0) & (combined_gen["Millennial"] == 1)])
+nr_male_genz = len(combined_gen[(combined_gen["female"] == 0) & (combined_gen["Millennial"] == 0)])
 print(f"The number of male millenials is {nr_male_millennials}. The number of males classified as gen z is {nr_male_genz}")
+
