@@ -40,7 +40,7 @@ def contraction(dataset):
         post = dataset['post'][i]
         find_contraction = re.findall(contraction, post)
         total_contractions_sentence = len(find_contraction)
-        lst_contractions.append(total_contractions_sentence// len(dataset["post"][i].split()))
+        lst_contractions.append(total_contractions_sentence / len(dataset["post"][i].split()))
     return lst_contractions
 
 
@@ -51,7 +51,7 @@ def exaggerate(dataset):
         post = dataset['post'][i]
         find_exaggeration = re.findall(exaggeration, post)
         total_exaggeration_sentence = len(find_exaggeration)
-        lst_exaggeration.append(total_exaggeration_sentence// len(dataset["post"][i].split()))
+        lst_exaggeration.append(total_exaggeration_sentence / len(dataset["post"][i].split()))
     return lst_exaggeration
 
 
