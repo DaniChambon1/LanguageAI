@@ -12,7 +12,7 @@ print(f"The total number of posts is {len(combined_gen)}. The number of posts ma
 
 
 ### Get the number of authors that are male and female
-grouped2 = combined_gen.groupby('auhtor_ID').agg({'female': ['min', 'max'], 'Millennial': ['min']})
+grouped2 = combined_gen.groupby('auhtor_ID').agg({'female': ['min', 'max'], 'Millennial': ['min'], 'birth_year': ['min']})
 
 # Check if there are no persons who are classified as both female and male
 no_double_classifications = grouped2['female', 'min'].equals(grouped2['female', 'max'])
@@ -54,28 +54,62 @@ print(f"The number of authors that are male and millennial is {nr_male_authors_m
 
 
 
-### Make a graph of the distribution of ages in the dataset.
-
-#combined_gen["birth_year"].plot(kind='bar')
-# grouped_by = combined_gen.groupby('birth_year').size()
-# grouped_by.loc[2009] = 0
-# grouped_by = grouped_by.sort_index()
-# grouped_by.plot(kind='bar')
-# plt.xlabel('Birth Year')
-# plt.ylabel('Count')
-# plt.title('Count of Birth Years of posts', size = 16)
-# plt.show()
-
+### Make a graph of the number of posts per birth year per gender
 
 grouped_by_gender = combined_gen.groupby(['birth_year', 'female']).size().unstack(fill_value=0)
 # Adding missing year (2009) with count 0 for both genders
 grouped_by_gender.loc[2009] = [0, 0]
 grouped_by_gender = grouped_by_gender.sort_index()
-ax = grouped_by_gender.plot(kind='bar', stacked=True)
-plt.xlabel('Birth Year')
+colors = ['dimgray', 'darkgray']
+ax = grouped_by_gender.plot(kind='bar', stacked=True, color=colors, figsize=(10, 6))
+plt.xlabel('Birth year')
 plt.ylabel('Count')
-plt.title('Count of Birth Years by Gender', size=16)
-plt.legend(['Male', 'Female'], loc='upper right')
-# Line is not shown??
-ax.axvline(x=1996, color='red', linestyle='--')
+plt.title('Count of posts per birth year by gender', size=16, fontweight='bold')
+ax.axvline(x=16.5, color='black', linestyle='--', label='Generation Division')
+legend_labels = ['Generation Division', 'Male', 'Female']
+plt.legend(labels=legend_labels, loc='upper right')
+plt.savefig('my_plot.png', bbox_inches='tight')
+#plt.show()
+plt.close()
+
+
+### Make a graph of the number of authors per birth year per gender
+# grouped_author = combined_gen.groupby('birth_year')['female'].agg(females_count='sum', total_posts='count')
+# grouped_author['males_count'] = grouped_author['total_posts'] - grouped_author['females_count'] 
+# grouped_author.loc[2009] = [0, 0, 0]
+# grouped_author = grouped_author.sort_index()
+# ax2 = plt.subplots()
+# colors = ['dimgray', 'darkgray']
+# ax2 = grouped_author[['females_count', 'males_count']].plot(kind='bar', stacked=True, color=colors, figsize=(10, 6))
+# ax2.set_xlabel('Birth year')
+# ax2.set_ylabel('Count')
+# ax2.set_title('Count of authors per birth year by gender', size=16, fontweight='bold')
+# ax2.axvline(x=16.5, color='black', linestyle='--', label='Generation Division')
+# legend_labels = ['Generation Division', 'Male', 'Female']
+# ax2.legend(labels=legend_labels, loc='upper right')
+# plt.savefig('my_plot2.png', bbox_inches='tight')
+# plt.show()
+
+unique_authors = combined_gen.drop_duplicates('auhtor_ID')
+
+# Count females and males for these unique authors per birth year
+grouped_author = unique_authors.groupby('birth_year')['female'].agg(females_count='sum', total_authors='size')
+grouped_author['males_count'] = grouped_author['total_authors'] - grouped_author['females_count'] 
+grouped_author.loc[2009] = [0, 0, 0]
+grouped_author = grouped_author.sort_index()
+
+print(grouped_author)
+
+fig2, ax2 = plt.subplots(figsize=(10, 6))
+colors = ['dimgray', 'darkgray']
+grouped_author[['females_count', 'males_count']].plot(kind='bar', stacked=True, color=colors, ax=ax2)
+
+ax2.set_xlabel('Birth year')
+ax2.set_ylabel('Count')
+ax2.set_title('Count of authors per birth year by gender', size=16, fontweight='bold')
+
+ax2.axvline(x=16.5, color='black', linestyle='--', label='Generation Division')
+ax2.legend(labels=legend_labels, loc='upper right')
+
+plt.savefig('my_plot2.png', bbox_inches='tight')
 plt.show()
