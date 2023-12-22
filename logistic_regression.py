@@ -1,25 +1,91 @@
-import sklearn
 from sklearn.linear_model import LogisticRegression
-import pandas as pd
+from feature_hilde import combined_gen
+from sklearn.model_selection import train_test_split, GridSearchCV,  KFold
+from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 
-data = pd.read_csv("data/punctuation_data.csv")
+#takes 2000 rows of the dataset to do the crossvalidation + hyperparameter tuning over. 
+columns_to_exclude = ['Millennial', 'birth_year','language','post','Unnamed: 0','auhtor_ID']
+combined_gen2 = combined_gen.copy().drop(columns=columns_to_exclude)
 
-data["generation"] = 0
+X = combined_gen2.iloc[:2000]
+y = combined_gen["Millennial"][:2000]
 
-for i in range(len(data)):
-    if data["birth_year"][i] in range(1980, 1997):
-        data["generation"][i] = "M"
-    if data["birth_year"][i] in range(1997, 2013):
-        data["generation"][i] = "Z"
 
-final_data = data[data["generation"] != 0]
-print(final_data.head())
+pipeline = Pipeline([
+    ('feature_selection', SelectKBest(score_func=f_classif)), 
+    ('scaler', StandardScaler()),
+    ('logistic', LogisticRegression())
+])
 
-X = final_data[["punctuation_count_standardized", "comma_count", "exclamation_count", "female"]]
-#X = final_data["female"]
-y = final_data["generation"]
-clf = LogisticRegression(random_state=0).fit(X, y)
+param_grid = {
+    'feature_selection__k': [2,3,4,5],              # Number of features to select
+    'logistic__penalty': ['l1', 'l2', 'elasticnet', 'none'],                        # Specify the norm of the penalty:
+    'logistic__C': [0.01, 0.1, 1, 10],                                              # Inverse of regularization strength
+    'logistic__solver': ['lbfgs', 'liblinear', 'newton-c', 'newton-cholesky', 'sag'] # Algorithm to use in the optimization problem
+}
 
-#clf.predict(X[:2, :])
-#clf.predict_proba(X[:2, :])
-print(clf.score(X, y))
+grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=10)
+grid_search.fit(X, y)
+
+
+best_model = grid_search.best_estimator_
+selected_features = best_model.named_steps['feature_selection']
+selected_indices = selected_features.get_support(indices=True)
+feature_names = X.columns.tolist()
+selected_feature_names = [feature_names[i] for i in selected_indices]
+
+best_params = grid_search.best_params_
+best_score = grid_search.best_score_
+
+print("Selected Features:", selected_feature_names)
+print("Best Parameters:", best_params)
+print("Best Score:", best_score)
+
+
+chosen_penalty = best_params['logistic__penalty']
+chosen_C = best_params['logistic__C']
+chosen_solver = best_params['logistic__solver']
+
+#trains selected model from above on the whole dataset
+
+X_entire = combined_gen2
+y_entire = combined_gen["Millennial"]
+X_train, X_test, y_train, y_test = train_test_split(X_entire[selected_feature_names], y_entire, test_size=0.2, random_state=42)
+model = LogisticRegression(penalty=chosen_penalty, C=chosen_C, solver=chosen_solver)
+num_folds = 5
+accuracy_scores = []
+precision_scores = []
+recall_scores = []
+f1_scores = []
+# Create a k-fold cross-validation iterator
+kf = KFold(n_splits=num_folds, shuffle=True, random_state=42)
+for train_index, test_index in kf.split(X_entire):
+    X_train, X_test = X_entire.iloc[train_index][selected_feature_names], X_entire.iloc[test_index][selected_feature_names]
+    y_train, y_test = y_entire.iloc[train_index], y_entire.iloc[test_index]
+
+    # Fit the model on training data
+    model.fit(X_train, y_train)
+
+    # Make predictions on the test fold
+    predictions = model.predict(X_test)
+
+    # Calculate evaluation metrics for this fold
+    accuracy_scores.append(accuracy_score(y_test, predictions))
+    precision_scores.append(precision_score(y_test, predictions))
+    recall_scores.append(recall_score(y_test, predictions))
+    f1_scores.append(f1_score(y_test, predictions))
+
+# Compute average scores across all folds
+avg_accuracy = sum(accuracy_scores) / len(accuracy_scores)
+avg_precision = sum(precision_scores) / len(precision_scores)
+avg_recall = sum(recall_scores) / len(recall_scores)
+avg_f1 = sum(f1_scores) / len(f1_scores)
+
+# Print average evaluation metrics across folds
+print(f"Average Accuracy: {avg_accuracy}")
+print(f"Average Precision: {avg_precision}")
+print(f"Average Recall: {avg_recall}")
+print(f"Average F1-score: {avg_f1}")
