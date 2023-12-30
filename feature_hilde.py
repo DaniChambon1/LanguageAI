@@ -94,7 +94,5 @@ combined_gen['emoticon count'] = emoticons(combined_gen)
 combined_gen['pronoun count'] = pronouns(combined_gen)
 combined_gen['punctuation count'], combined_gen['comma count'], combined_gen['exclamation count'] = punctuation(combined_gen)
 
-# The combined_gen dataset is written into a csv so you do not have to rerun the full data cleaning process
-# everytime that a model is run.
 
-combined_gen.to_csv("all_features_cleaned_data.csv")
+combined_gen.to_csv("data\combined_gen.csv")
