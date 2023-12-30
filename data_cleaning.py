@@ -3,8 +3,6 @@ import numpy as np
 from tqdm import tqdm
 from langdetect import detect
 
-# birth_year = pd.read_csv("lai-data/birth_year.csv")
-# gender = pd.read_csv("lai-data/gender.csv")
 
 # Preprocessing to combine datasets
 data_birth_year = pd.read_csv("data/birth_year.csv")
