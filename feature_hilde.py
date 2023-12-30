@@ -3,7 +3,7 @@ import re
 from tqdm import tqdm
 from langdetect import detect
 import string
-from data_cleaning import combined_gen
+from data_cleaning import balanced_gen
 
 def capital(dataset):
     stand_capitals = []
@@ -87,12 +87,12 @@ def punctuation(dataset):
     
     return punctuation_count_standardized_list, comma_count_standardized_list, exclamation_count_standardized_list
 
-combined_gen['contraction count'] = contraction(combined_gen)
-combined_gen['exaggeration count'] = exaggerate(combined_gen)
-combined_gen['capital count'] =  capital(combined_gen)
-combined_gen['emoticon count'] = emoticons(combined_gen)
-combined_gen['pronoun count'] = pronouns(combined_gen)
-combined_gen['punctuation count'], combined_gen['comma count'], combined_gen['exclamation count'] = punctuation(combined_gen)
+balanced_gen['contraction count'] = contraction(balanced_gen)
+balanced_gen['exaggeration count'] = exaggerate(balanced_gen)
+balanced_gen['capital count'] =  capital(balanced_gen)
+balanced_gen['emoticon count'] = emoticons(balanced_gen)
+balanced_gen['pronoun count'] = pronouns(balanced_gen)
+balanced_gen['punctuation count'], balanced_gen['comma count'], balanced_gen['exclamation count'] = punctuation(balanced_gen)
 
 
-combined_gen.to_csv("data\combined_gen.csv")
+balanced_gen.to_csv("data/balanced_gen.csv")

@@ -3,7 +3,6 @@ import numpy as np
 from tqdm import tqdm
 from langdetect import detect
 
-
 # Preprocessing to combine datasets
 data_birth_year = pd.read_csv("data/birth_year.csv")
 data_gender = pd.read_csv("data/gender.csv")
@@ -16,7 +15,7 @@ column_selection = removed_duplicates.drop(columns=['post_y'])
 column_selection.reset_index(inplace=True, drop=True)
 column_selection.rename(columns={"post_x": "post"}, inplace=True)
 
-# Filter out all non-english posts
+### ENGLISH FILTERING ###
 def english_filtering():
     post_list = list(column_selection["post"])
     language_list = []
@@ -31,8 +30,7 @@ def english_filtering():
 
 english_filtering()
 
-# Filtering based on generations
-
+### GENERATION FILTERING ###
 combined = pd.read_csv("data\combined_data_english.csv")
 generations = []
 for i in range(len(combined)):
@@ -46,3 +44,13 @@ for i in range(len(combined)):
 combined_gen = combined.copy()
 combined_gen['Millennial'] = generations
 combined_gen = combined_gen[combined_gen['Millennial']!=-1].reset_index(drop=True)
+
+### BALANCING THE DATASET ###
+majority_class = combined_gen[combined_gen['Millennial'] == 1]
+minority_class = combined_gen[combined_gen['Millennial'] == 0]
+
+# Randomly sample majority class to match minority class size
+majority_downsampled = majority_class.sample(n=len(minority_class), random_state=42)
+balanced_gen = pd.concat([majority_downsampled, minority_class])
+
+print(balanced_gen['Millennial'].value_counts()) 
