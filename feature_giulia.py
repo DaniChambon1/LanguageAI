@@ -28,3 +28,5 @@ df['contraction'] = contraction(df)
 df['exaggerate'] = exaggerate(df)
 
 #test
+
+# Hallo Hilde kun je dit zien
