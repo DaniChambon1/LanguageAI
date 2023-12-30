@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from langdetect import detect
+from langdetect import detect, DetectorFactory
 
 
 # Preprocessing to combine datasets
@@ -18,6 +18,7 @@ column_selection.rename(columns={"post_x": "post"}, inplace=True)
 
 # Filter out all non-english posts
 def english_filtering():
+    DetectorFactory.seed = 42
     post_list = list(column_selection["post"])
     language_list = []
     for post in tqdm(post_list):
