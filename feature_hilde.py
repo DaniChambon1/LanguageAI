@@ -93,3 +93,6 @@ combined_gen['capital count'] =  capital(combined_gen)
 combined_gen['emoticon count'] = emoticons(combined_gen)
 combined_gen['pronoun count'] = pronouns(combined_gen)
 combined_gen['punctuation count'], combined_gen['comma count'], combined_gen['exclamation count'] = punctuation(combined_gen)
+
+
+combined_gen.to_csv("data\combined_gen.csv")

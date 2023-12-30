@@ -1,4 +1,4 @@
-from feature_hilde import combined_gen
+#from feature_hilde import combined_gen
 from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
@@ -7,13 +7,20 @@ from sklearn.svm import SVC
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
+import pandas as pd
+from imblearn.over_sampling import SMOTE
 
-
-columns_to_exclude = ['Millennial', 'birth_year','language','post','Unnamed: 0','auhtor_ID']
+combined_gen = pd.read_csv("data\combined_gen.csv")
+columns_to_exclude = ['birth_year','language','post','Unnamed: 0','auhtor_ID','Unnamed: 0.1']
 combined_gen2 = combined_gen.copy().drop(columns=columns_to_exclude)
 
-X = combined_gen2.iloc[:2000]
-y = combined_gen["Millennial"][:2000]
+
+sampled = combined_gen2.sample(n=2000, random_state=42).reset_index(drop=True)
+X = sampled.drop("Millennial",axis=1)
+y = sampled["Millennial"]
+
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
 
 
 pipeline = Pipeline([
@@ -23,54 +30,55 @@ pipeline = Pipeline([
 ])
 
 param_grid = {
-    'feature_selection__k': [2,3,4,5],              # Number of features to select
+    'feature_selection__k': [2,3,4,5],            # Number of features to select
     'svm__C': [0.1, 1, 10, 100],                  # Regularization parameter
     'svm__gamma': [1, 0.1, 0.01, 0.001],          # Kernel coefficient for 'rbf' kernel
     'svm__kernel': ['rbf', 'linear']              # Kernel type
 }
 
 grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=10)
-grid_search.fit(X, y)
+grid_search.fit(X_resampled, y_resampled)
 
 
 best_model = grid_search.best_estimator_
 selected_features = best_model.named_steps['feature_selection']
 selected_indices = selected_features.get_support(indices=True)
-feature_names = X.columns.tolist()
+feature_names = X_resampled.columns.tolist()
 selected_feature_names = [feature_names[i] for i in selected_indices]
 
-best_params = grid_search.best_params_
-best_score = grid_search.best_score_
 
 print("Selected Features:", selected_feature_names)
-print("Best Parameters:", best_params)
-print("Best Score:", best_score)
+print("Best Parameters:", grid_search.best_params_)
+print("Best Score:", grid_search.best_score_)
 
 
-chosen_kernel = best_params['svm__kernel']
-chosen_C = best_params['svm__C']
-chosen_gamma = best_params['svm__gamma']
+chosen_kernel = grid_search.best_params_['svm__kernel']
+chosen_C = grid_search.best_params_['svm__C']
+chosen_gamma = grid_search.best_params_['svm__gamma']
 
+#### Performing cross validation on entire dataset with chosen parameters
 
-X_entire = combined_gen2
-y_entire = combined_gen["Millennial"]
-X_train, X_test, y_train, y_test = train_test_split(X_entire[selected_feature_names], y_entire, test_size=0.2, random_state=42)
+X = combined_gen2.drop("Millennial",axis=1)
+y = combined_gen2["Millennial"]
+
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
+
+X_train, X_test, y_train, y_test = train_test_split(X_resampled[selected_feature_names], y_resampled, test_size=0.2, random_state=42)
 model = svm.SVC(kernel=chosen_kernel, C = chosen_C, gamma = chosen_gamma)
 num_folds = 5
+
+
 accuracy_scores = []
 precision_scores = []
 recall_scores = []
 f1_scores = []
-# Create a k-fold cross-validation iterator
+
 kf = KFold(n_splits=num_folds, shuffle=True, random_state=42)
-for train_index, test_index in kf.split(X_entire):
-    X_train, X_test = X_entire.iloc[train_index][selected_feature_names], X_entire.iloc[test_index][selected_feature_names]
-    y_train, y_test = y_entire.iloc[train_index], y_entire.iloc[test_index]
-
-    # Fit the model on training data
+for train_index, test_index in kf.split(X_resampled):
+    X_train, X_test = X_resampled.iloc[train_index][selected_feature_names], X_resampled.iloc[test_index][selected_feature_names]
+    y_train, y_test = y_resampled.iloc[train_index], y_resampled.iloc[test_index]
     model.fit(X_train, y_train)
-
-    # Make predictions on the test fold
     predictions = model.predict(X_test)
 
     # Calculate evaluation metrics for this fold
