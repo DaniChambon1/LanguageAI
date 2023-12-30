@@ -10,9 +10,8 @@ from sklearn.pipeline import Pipeline
 import pandas as pd
 
 balanced_gen = pd.read_csv("data/balanced_gen.csv")
-columns_to_exclude = ['birth_year','language','post','Unnamed: 0','auhtor_ID','Unnamed: 0.1']
-balanced_gen2 = balanced_gen.copy().drop(columns=columns_to_exclude)
-
+balanced_gen2 = balanced_gen[['Millennial','contraction count','exaggeration count','capital count','emoticon count','pronoun count','punctuation count','comma count','exclamation count','female']].copy()
+# create small sample for hyperparameter tuning
 sampled = balanced_gen2.sample(n=2000, random_state=42).reset_index(drop=True)
 X = sampled.drop("Millennial", axis=1)
 y = sampled["Millennial"]
@@ -90,9 +89,3 @@ print(f"Average Accuracy: {avg_accuracy}")
 print(f"Average Precision: {avg_precision}")
 print(f"Average Recall: {avg_recall}")
 print(f"Average F1-score: {avg_f1}")
-
-counter = 0 
-for i in predictions:
-    if i == 0:
-        counter += 1
-print(counter)

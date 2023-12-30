@@ -51,6 +51,6 @@ minority_class = combined_gen[combined_gen['Millennial'] == 0]
 
 # Randomly sample majority class to match minority class size
 majority_downsampled = majority_class.sample(n=len(minority_class), random_state=42)
-balanced_gen = pd.concat([majority_downsampled, minority_class])
+balanced_gen = pd.concat([majority_downsampled, minority_class]).reset_index(drop=True)
 
 print(balanced_gen['Millennial'].value_counts()) 

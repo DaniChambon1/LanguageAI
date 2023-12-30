@@ -16,7 +16,6 @@ f1 = f1_score(combined_gen['Millennial'], majority_predict)
 print(f"Majority --> Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-score: {f1}")
 
 # Now, majority prediction will be done without gender as a predictor
-
 majority_predict2 = [1] * len(combined_gen)
 
 accuracy2 = accuracy_score(combined_gen['Millennial'], majority_predict2)
