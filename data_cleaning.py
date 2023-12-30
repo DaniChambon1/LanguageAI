@@ -48,3 +48,5 @@ for i in range(len(combined)):
 combined_gen = combined.copy()
 combined_gen['Millennial'] = generations
 combined_gen = combined_gen[combined_gen['Millennial']!=-1].reset_index(drop=True)
+
+# Now, the dataset that is used troughout the project will be called combined gen
