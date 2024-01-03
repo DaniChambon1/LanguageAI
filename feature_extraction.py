@@ -5,6 +5,7 @@ from tqdm import tqdm
 from nltk import word_tokenize, pos_tag, pos_tag_sents, help
 from collections import Counter
 import string
+import emoji
 
 
 class FeatureExtractor: 
@@ -104,17 +105,17 @@ class FeatureExtractor:
     def emoticons(self):
         # Copy original df
         df_feature = self.original_df
-        percentage_emoticons = []
+        emoticon_count = []
 
         # Loop over posts to find & count emoticons
         for ind in df_feature.index:  
             emoticon_pattern = r'(:-?\)|:-?D|;-?\)|:-?P|:-?\(|:-?\/|:-?O|<3)'
             emoticons = re.findall(emoticon_pattern, df_feature['post'][ind])
-            percentage_emoticons.append(len(emoticons) *100 / len(df_feature['post'][ind]))
+            emoticon_count.append(len(emoticons))
 
         # Add emoticons to csv
-        df_feature['percentage_emoticons'] = percentage_emoticons
-        df_feature = df_feature[['percentage_emoticons']]
+        df_feature['emoticon_count'] = emoticon_count
+        df_feature = df_feature[['emoticon_count']]
         self.add_feature(df_feature)
     
     def pronouns(self):
@@ -286,7 +287,19 @@ class FeatureExtractor:
         df_feature = df_feature[['noun_count','JJ_counts','JJR_counts','JJS_counts','LS_counts', 'MD_counts','RB_counts','RBR_counts', 'RBS_counts','UH_counts', 'VPR_counts', 'VPA_counts']]
         self.add_feature(df_feature)
 
-   
+    def emojis(self):
+        # Copy original df
+        df_feature = self.original_df
+        emoji_count = []
+
+        # Loop over posts to find & count emoticons
+        for ind in df_feature.index:  
+            emoji_count.append(emoji.emoji_count(df_feature['post'][ind]))
+
+        # Add emoticons to csv
+        df_feature['emoji_count'] = emoji_count
+        df_feature = df_feature[['emoji_count']]
+        self.add_feature(df_feature)
 
 
 # Create an instance of the Feature Extractor with specified paths
@@ -299,3 +312,4 @@ FE.emoticons()
 FE.pronouns()
 FE.punctuation()
 FE.pos_count()
+FE.emojis()
