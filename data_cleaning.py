@@ -7,6 +7,7 @@ from langdetect import detect, DetectorFactory
 data_birth_year = pd.read_csv("data/birth_year.csv")
 data_gender = pd.read_csv("data/gender.csv")
 
+
 # The data is merged on the auhtor_ID column, after which all duplicate posts are dropped and the 'post_y' column is left out
 merged_data = pd.merge(data_gender, data_birth_year, on='auhtor_ID')
 removed_duplicates = merged_data.drop_duplicates(subset=['post_x'])
@@ -21,7 +22,10 @@ def english_filtering():
     post_list = list(column_selection["post"])
     language_list = []
     for post in tqdm(post_list):
-        language_list.append(detect(post))
+        try:
+            language_list.append(detect(post))
+        except:
+            language_list.append("unknown")
 
     column_selection["language"] = language_list
     column_selection.head()
@@ -55,3 +59,4 @@ majority_downsampled = majority_class.sample(n=len(minority_class), random_state
 balanced_gen = pd.concat([majority_downsampled, minority_class]).reset_index(drop=True)
 
 print(balanced_gen['Millennial'].value_counts()) 
+balanced_gen.to_csv("data/balanced_gen.csv")

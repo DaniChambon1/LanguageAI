@@ -3,7 +3,11 @@ import re
 from tqdm import tqdm
 from langdetect import detect
 import string
-from data_cleaning import balanced_gen
+#from data_cleaning import balanced_gen
+import nltk
+from nltk.tokenize import word_tokenize
+
+balanced_gen = pd.read_csv("data/balanced_gen.csv")
 
 def capital(dataset):
     stand_capitals = []
@@ -12,16 +16,15 @@ def capital(dataset):
         for char in dataset['post'][i]:
             if char.isupper():
                 count += 1
-        stand_capitals.append(count / len(dataset['post'][i]))
+        stand_capitals.append(count / len(word_tokenize(dataset['post'][i])))
     return stand_capitals
-
 
 def emoticons(dataset):
     stand_emoticons = []
     for i in range(len(dataset)) :  
         emoticon_pattern = r'(:-?\)|:-?D|;-?\)|:-?P|:-?\(|:-?\/|:-?O|<3)'
         emoticons = re.findall(emoticon_pattern, dataset['post'][i])
-        stand_emoticons.append(len(emoticons) / len(dataset['post'][i]))
+        stand_emoticons.append(len(emoticons) / len(word_tokenize(dataset['post'][i])))
     return stand_emoticons
 
 def pronouns(dataset):
@@ -29,9 +32,8 @@ def pronouns(dataset):
     for i in range(len(dataset)) :  
         pronoun_pattern = r'\b(?:he|she|it|they|we|you|I|me|my|mine|you|your|yours|him|her|hers|us|our|ours|them|their|theirs)\b'
         pronouns = re.findall(pronoun_pattern, dataset['post'][i])
-        stand_pronouns.append(len(pronouns) / len(dataset["post"][i].split()))
+        stand_pronouns.append(len(pronouns) / len(word_tokenize(dataset["post"][i])))
     return stand_pronouns
-
 
 def contraction(dataset):
     contraction = '[a-zA-Z]+\'m\s|[a-zA-Z]+\'d\s|[a-zA-Z]+\'ll\s|[a-zA-Z]+\'re\s|[a-zA-Z]+\'ve\s|[a-zA-Z]+\'s\s|[a-zA-Z]+\'t\s'
@@ -40,9 +42,8 @@ def contraction(dataset):
         post = dataset['post'][i]
         find_contraction = re.findall(contraction, post)
         total_contractions_sentence = len(find_contraction)
-        lst_contractions.append(total_contractions_sentence / len(dataset["post"][i].split()))
+        lst_contractions.append(total_contractions_sentence / len(word_tokenize(dataset["post"][i])))
     return lst_contractions
-
 
 def exaggerate(dataset):
     exaggeration = '[a|A]{3,}|[b|B]{3,}|[c|C]{3,}|[d|D]{3,}|[e|E]{3,}|[f|F]{3,}|[g|G]{3,}|[h|H]{3,}|[i|I]{3,}|[j|J]{3,}|[k|K]{3,}|[l|L]{3,}|[m|M]{3,}[n|N]{3,}|[o|O]{3,}|[p|P]{3,}|[q|Q]{3,}|[r|R]{3,}|[s|S]{3,}|[t|T]{3,}|[u|U]{3,}|[v|V]{3,}|[w|W]{3,}|[x|X]{3,}|[y|Y]{3,}|[z|Z]{3,}|[.]{2,}|[!]{2,}'
@@ -51,9 +52,8 @@ def exaggerate(dataset):
         post = dataset['post'][i]
         find_exaggeration = re.findall(exaggeration, post)
         total_exaggeration_sentence = len(find_exaggeration)
-        lst_exaggeration.append(total_exaggeration_sentence / len(dataset["post"][i].split()))
+        lst_exaggeration.append(total_exaggeration_sentence / len(word_tokenize(dataset["post"][i])))
     return lst_exaggeration
-
 
 def punctuation(dataset):
     post_list = list(dataset["post"])
@@ -76,13 +76,13 @@ def punctuation(dataset):
             if character == "!":
                 exclamation_count += 1
         
-        punctuation_count_standardized_list.append(punctuation_count / len(post))
+        punctuation_count_standardized_list.append(punctuation_count / len(word_tokenize(post)))
         punctuation_count = 0
 
-        comma_count_standardized_list.append(comma_count / len(post))
+        comma_count_standardized_list.append(comma_count / len(word_tokenize(post)))
         comma_count = 0
 
-        exclamation_count_standardized_list.append(exclamation_count /len(post))
+        exclamation_count_standardized_list.append(exclamation_count / len(word_tokenize(post)))
         exclamation_count = 0
     
     return punctuation_count_standardized_list, comma_count_standardized_list, exclamation_count_standardized_list
@@ -95,4 +95,4 @@ balanced_gen['pronoun count'] = pronouns(balanced_gen)
 balanced_gen['punctuation count'], balanced_gen['comma count'], balanced_gen['exclamation count'] = punctuation(balanced_gen)
 
 
-balanced_gen.to_csv("data/balanced_gen.csv")
+balanced_gen.to_csv("data/balanced_gen_plus.csv")

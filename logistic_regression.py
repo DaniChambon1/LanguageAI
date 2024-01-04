@@ -1,9 +1,6 @@
 #from feature_hilde import balanced_gen
-from sklearn import svm
-from sklearn.model_selection import train_test_split
+import numpy as np
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
-from sklearn.model_selection import GridSearchCV, cross_val_score, KFold
-from sklearn.svm import SVC
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -13,7 +10,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV,  KFold
 from sklearn.linear_model import LogisticRegression
 
 
-balanced_gen = pd.read_csv("data/balanced_gen.csv")
+balanced_gen = pd.read_csv("data/balanced_gen_plus.csv")
 balanced_gen2 = balanced_gen[['Millennial','contraction count','exaggeration count','capital count','emoticon count','pronoun count','punctuation count','comma count','exclamation count','female']].copy()
 # create small sample for hyperparameter tuning
 sampled = balanced_gen2.sample(n=2000, random_state=42).reset_index(drop=True)
@@ -28,10 +25,10 @@ pipeline = Pipeline([
 ])
 
 param_grid = {
-    'feature_selection__k': [2,3,4,5],                                              # Number of features to select
-    'logistic__penalty': ['l1', 'l2', 'elasticnet', 'none'],                        # Specify the norm of the penalty:
-    'logistic__C': [0.01, 0.1, 1, 10],                                              # Inverse of regularization strength
-    'logistic__solver': ['lbfgs', 'liblinear', 'newton-cg', 'newton-cholesky', 'sag']# Algorithm to use in the optimization problem
+    'feature_selection__k': [2,3,4,5],          # Number of features to select
+    'logistic__penalty': ['l1', 'l2'],          # Specify the norm of the penalty:
+    'logistic__C': np.logspace(-4, 4, 20),      # Inverse of regularization strength
+    'logistic__solver': ['liblinear']           # Algorithm to use in the optimization problem
 }
 
 grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=10)
@@ -92,6 +89,10 @@ print(f"Average Accuracy: {avg_accuracy}")
 print(f"Average Precision: {avg_precision}")
 print(f"Average Recall: {avg_recall}")
 print(f"Average F1-score: {avg_f1}")
+
+
+
+
 
 
 
