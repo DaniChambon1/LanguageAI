@@ -40,7 +40,7 @@ class FeatureExtractor:
         df_feature = self.original_df
 
         # Add new feature
-        df_feature["word_count"] = df_feature["post"].apply(lambda n: len(n.split()))
+        df_feature["word_count"] = df_feature["post"].apply(lambda n: len(word_tokenize(n)))
 
         # Select only index and feature
         df_feature = df_feature[["word_count"]]
@@ -58,7 +58,7 @@ class FeatureExtractor:
         for ind in df_feature.index:
             post = df_feature['post'][ind]
             find_contraction = re.findall(contraction, post)
-            total_contractions_sentence = len(find_contraction)
+            total_contractions_sentence = len(find_contraction) / len(word_tokenize(post))
             lst_contractions.append(total_contractions_sentence)
         
         # Add contractions to csv
@@ -76,7 +76,7 @@ class FeatureExtractor:
         for ind in df_feature.index:
             post = df_feature['post'][ind]
             find_exaggeration = re.findall(exaggeration, post)
-            total_exaggeration_sentence = len(find_exaggeration)
+            total_exaggeration_sentence = len(find_exaggeration) / len(word_tokenize(post))
             lst_exaggeration.append(total_exaggeration_sentence)
 
         # Add exaggerations to csv
@@ -95,7 +95,7 @@ class FeatureExtractor:
             for char in df_feature['post'][ind]:
                 if char.isupper():
                     count += 1
-            percentage_capitals.append((count * 100) / len(df_feature['post'][ind]))
+            percentage_capitals.append((count * 100) / len(word_tokenize(df_feature['post'][ind])))
         
         # Add capitals to csv
         df_feature['percentage_capitals'] = percentage_capitals
@@ -111,7 +111,7 @@ class FeatureExtractor:
         for ind in df_feature.index:  
             emoticon_pattern = r'(:-?\)|:-?D|;-?\)|:-?P|:-?\(|:-?\/|:-?O|<3)'
             emoticons = re.findall(emoticon_pattern, df_feature['post'][ind])
-            emoticon_count.append(len(emoticons))
+            emoticon_count.append(len(emoticons) / len(word_tokenize(df_feature['post'][ind])))
 
         # Add emoticons to csv
         df_feature['emoticon_count'] = emoticon_count
@@ -127,7 +127,7 @@ class FeatureExtractor:
         for ind in df_feature.index:  
             pronoun_pattern = r'\b(?:he|she|it|they|we|you|I|me|my|mine|you|your|yours|him|her|hers|us|our|ours|them|their|theirs)\b'
             pronouns = re.findall(pronoun_pattern, df_feature['post'][ind])
-            percentage_pronouns.append((len(pronouns) *100) / len(df_feature["post"][ind].split()))
+            percentage_pronouns.append((len(pronouns) *100) / len(word_tokenize(df_feature["post"][ind])))
         
         # Add pronouns to csv
         df_feature['percentage_pronouns'] = percentage_pronouns
@@ -156,13 +156,13 @@ class FeatureExtractor:
                 if character == "!":
                     exclamation_count += 1
             
-            punctuation_counts.append(punctuation_count)
+            punctuation_counts.append(punctuation_count / len(word_tokenize(post)))
             punctuation_count = 0
 
-            comma_counts.append(comma_count)
+            comma_counts.append(comma_count / len(word_tokenize(post)))
             comma_count = 0
 
-            exclamation_counts.append(exclamation_count)
+            exclamation_counts.append(exclamation_count / len(word_tokenize(post)))
             exclamation_count = 0
 
         # Add punctuation counts to csv
@@ -189,7 +189,7 @@ class FeatureExtractor:
         VPA_counts = []
 
         # POS tagging
-        df_feature = self.original_df[:20]
+        df_feature = self.original_df
         posts = df_feature['post'].tolist()
         tagged_posts = pos_tag_sents(map(word_tokenize, posts))
         df_feature['pos'] = tagged_posts
@@ -256,18 +256,18 @@ class FeatureExtractor:
                 elif tag == ('VBN') or tag == ('VBD'):
                     VPA_count += 1
             # Save counts
-            noun_counts.append(noun_count)
-            JJ_counts.append(JJ_count)
-            JJR_counts.append(JJR_count)
-            JJS_counts.append(JJS_count)
-            LS_counts.append(LS_count)
-            MD_counts.append(MD_count)
-            RB_counts.append(RB_count)
-            RBR_counts.append(RBR_count)
-            RBS_counts.append(RBS_count)
-            UH_counts.append(UH_count)
-            VPR_counts.append(VPR_count)
-            VPA_counts.append(VPA_count)
+            noun_counts.append(noun_count/ len(word_tokenize(df_feature['post'][ind])))
+            JJ_counts.append(JJ_count / len(word_tokenize(df_feature['post'][ind])))
+            JJR_counts.append(JJR_count / len(word_tokenize(df_feature['post'][ind])))
+            JJS_counts.append(JJS_count / len(word_tokenize(df_feature['post'][ind])))
+            LS_counts.append(LS_count / len(word_tokenize(df_feature['post'][ind])))
+            MD_counts.append(MD_count / len(word_tokenize(df_feature['post'][ind])))
+            RB_counts.append(RB_count / len(word_tokenize(df_feature['post'][ind])))
+            RBR_counts.append(RBR_count / len(word_tokenize(df_feature['post'][ind])))
+            RBS_counts.append(RBS_count / len(word_tokenize(df_feature['post'][ind])))
+            UH_counts.append(UH_count / len(word_tokenize(df_feature['post'][ind])))
+            VPR_counts.append(VPR_count / len(word_tokenize(df_feature['post'][ind])))
+            VPA_counts.append(VPA_count / len(word_tokenize(df_feature['post'][ind])))
         
         # Add counts to DF
         df_feature['noun_count'] = noun_counts
@@ -294,7 +294,7 @@ class FeatureExtractor:
 
         # Loop over posts to find & count emoticons
         for ind in df_feature.index:  
-            emoji_count.append(emoji.emoji_count(df_feature['post'][ind]))
+            emoji_count.append(emoji.emoji_count(df_feature['post'][ind]) / len(word_tokenize(df_feature['post'][ind])))
 
         # Add emoticons to csv
         df_feature['emoji_count'] = emoji_count
@@ -303,13 +303,24 @@ class FeatureExtractor:
 
 
 # Create an instance of the Feature Extractor with specified paths
-FE = FeatureExtractor("data/cleaned_combined_data_english.csv", "data/final_combined_data_english.csv")
+balanced_gen = pd.read_csv("data/balanced_gen.csv")
+balanced_gen.to_csv("data/balanced_features.csv")
+FE = FeatureExtractor("data/balanced_gen.csv", "data/balanced_features.csv")
 FE.word_count()
+print("word")
 FE.contraction()
+print("contraction")
 FE.exaggeration()
+print("exaggeration")
 FE.capital()
+print("capital")
 FE.emoticons()
+print("emoticon")
 FE.pronouns()
+print("pronoun")
 FE.punctuation()
+print("puntuation")
 FE.pos_count()
+print("pos")
 FE.emojis()
+print("emoji")

@@ -6,11 +6,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 import pandas as pd
 
-balanced_gen = pd.read_csv("data/balanced_gen_plus.csv")
-balanced_gen2 = balanced_gen[['Millennial','contraction count','exaggeration count','capital count','emoticon count','pronoun count','punctuation count','comma count','exclamation count','female']].copy()
+data = pd.read_csv("data/balanced_features.csv")
+data = data.drop(["Unnamed: 0.2","Unnamed: 0.1","Unnamed: 0","auhtor_ID","post","birth_year","language"],axis=1)
 
-X = balanced_gen2.drop("Millennial", axis=1)
-y = balanced_gen2["Millennial"]
+X = data.drop("Millennial", axis=1)
+y = data["Millennial"]
+
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -26,10 +27,10 @@ param_grid = {
     'feature_selection__k': [2,3,4,5,6],                # Number of features to select
     'logistic__penalty': ['l1', 'l2'],                  # Specify the norm of the penalty
     'logistic__C': [0.001, 0.01, 0.1, 1, 10, 100],      # Inverse of regularization strength
-    'logistic__solver': ['liblinear','sag']             # Algorithm to use in the optimization problem
+    'logistic__solver': ['liblinear']             # Algorithm to use in the optimization problem
 }
 
-grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=10)
+grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=1)
 grid_search.fit(X_train, y_train)
 
 
