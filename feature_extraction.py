@@ -1,11 +1,9 @@
 import pandas as pd
 import re
-import nltk
-from tqdm import tqdm
-from nltk import word_tokenize, pos_tag, pos_tag_sents, help
-from collections import Counter
+from nltk import word_tokenize, pos_tag_sents
 import string
 import emoji
+from data_cleaning import balanced_gen
 
 
 class FeatureExtractor: 
@@ -138,7 +136,6 @@ class FeatureExtractor:
 
         # Copy original df and define necessary objects
         df_feature = self.original_df
-        post_list = list(df_feature["post"])
         punctuation_count = 0
         punctuation_counts = []
         comma_count = 0
@@ -147,7 +144,7 @@ class FeatureExtractor:
         exclamation_counts = []
 
         # Loop over posts to find & count punctuation
-        for post in tqdm(post_list):
+        for post in list(df_feature["post"]):
             for character in post:
                 if character in string.punctuation:
                     punctuation_count += 1
@@ -165,7 +162,7 @@ class FeatureExtractor:
             exclamation_counts.append(exclamation_count / len(word_tokenize(post)))
             exclamation_count = 0
 
-        # Add punctuation counts to csv
+        # Add punctuation counts as columns
         df_feature['punctuation_counts'] = punctuation_counts
         df_feature['comma_counts'] = comma_counts
         df_feature['exclamation_counts'] = exclamation_counts
@@ -181,6 +178,7 @@ class FeatureExtractor:
         JJS_counts = []
         LS_counts = []
         MD_counts = []
+        GM_counts = []
         RB_counts = []
         RBR_counts = []
         RBS_counts = []
@@ -196,36 +194,19 @@ class FeatureExtractor:
         
         # Count POS
         for ind in df_feature.index:
-            # Nouns
-            noun_count = 0 
-            # Adjective
-            JJ_count = 0
-            # Adjective, comparative
-            JJR_count = 0
-            # Adjective, superlative
-            JJS_count = 0
-
-            # list item marker
-            LS_count = 0 
-            # Modal auxiliary
-            MD_count = 0
-            # Genitive marker
-            gen_count = 0 
-
-            # Adverbs
-            RB_count = 0 
-            # Adverbs, comparative
-            RBR_count = 0 
-            # Adverbs, superlative
-            RBS_count = 0 
-
-            # Interjection
-            UH_count = 0
-
-            # Verbs, present
-            VPR_count = 0 
-            # Verbs, past
-            VPA_count = 0 
+            noun_count = 0 # Nouns
+            JJ_count = 0 # Adjective
+            JJR_count = 0 # Adjective, comparative
+            JJS_count = 0 # Adjective, superlative
+            LS_count = 0  # list item marker
+            MD_count = 0 # Modal auxiliary
+            GM_count = 0 # Genitive marker
+            RB_count = 0 # Adverbs
+            RBR_count = 0  # Adverbs, comparative
+            RBS_count = 0 # Adverbs, superlative
+            UH_count = 0 # Interjection
+            VPR_count = 0 # Verbs, present
+            VPA_count = 0 # Verbs, past
 
             # Count
             for (word, tag) in df_feature['pos'][ind]:
@@ -242,7 +223,7 @@ class FeatureExtractor:
                 elif tag == ('MD'):
                     MD_count += 1
                 elif tag == ('POS'):
-                    gen_count += 1
+                    GM_count += 1
                 elif tag == ('RB'):
                     RB_count += 1
                 elif tag == ('RBR'):
@@ -262,6 +243,7 @@ class FeatureExtractor:
             JJS_counts.append(JJS_count / len(word_tokenize(df_feature['post'][ind])))
             LS_counts.append(LS_count / len(word_tokenize(df_feature['post'][ind])))
             MD_counts.append(MD_count / len(word_tokenize(df_feature['post'][ind])))
+            GM_counts.append(GM_count / len(word_tokenize(df_feature['post'][ind])))
             RB_counts.append(RB_count / len(word_tokenize(df_feature['post'][ind])))
             RBR_counts.append(RBR_count / len(word_tokenize(df_feature['post'][ind])))
             RBS_counts.append(RBS_count / len(word_tokenize(df_feature['post'][ind])))
@@ -276,6 +258,7 @@ class FeatureExtractor:
         df_feature['JJS_counts'] = JJS_counts
         df_feature['LS_counts'] = LS_counts
         df_feature['MD_counts'] = MD_counts
+        df_feature['GM_counts'] = GM_counts
         df_feature['RB_counts'] = RB_counts
         df_feature['RBR_counts'] = RBR_counts
         df_feature['RBS_counts'] = RBS_counts
@@ -284,7 +267,7 @@ class FeatureExtractor:
         df_feature['VPA_counts'] = VPA_counts
         
         # Add counts to csv
-        df_feature = df_feature[['noun_count','JJ_counts','JJR_counts','JJS_counts','LS_counts', 'MD_counts','RB_counts','RBR_counts', 'RBS_counts','UH_counts', 'VPR_counts', 'VPA_counts']]
+        df_feature = df_feature[['noun_count','JJ_counts','JJR_counts','JJS_counts','LS_counts', 'MD_counts','GM_counts','RB_counts','RBR_counts', 'RBS_counts','UH_counts', 'VPR_counts', 'VPA_counts']]
         self.add_feature(df_feature)
 
     def emojis(self):
@@ -302,25 +285,20 @@ class FeatureExtractor:
         self.add_feature(df_feature)
 
 
-# Create an instance of the Feature Extractor with specified paths
-balanced_gen = pd.read_csv("data/balanced_gen.csv")
+
+# initiate balanced_features.csv as balanced_gen.csv
+balanced_gen = pd.read_csv("data/balanced_gen.csv", index_col=[0])
 balanced_gen.to_csv("data/balanced_features.csv")
+# Create an instance of the Feature Extractor with specified paths
 FE = FeatureExtractor("data/balanced_gen.csv", "data/balanced_features.csv")
 FE.word_count()
-print("word")
 FE.contraction()
-print("contraction")
 FE.exaggeration()
-print("exaggeration")
 FE.capital()
-print("capital")
 FE.emoticons()
-print("emoticon")
 FE.pronouns()
-print("pronoun")
 FE.punctuation()
-print("puntuation")
 FE.pos_count()
-print("pos")
 FE.emojis()
-print("emoji")
+print("Feature extraction done")
+balanced_gen_features = pd.read_csv("data/balanced_features.csv", index_col=[0])

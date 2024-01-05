@@ -1,10 +1,10 @@
 # LanguageAI
 Language and AI assignment
 
-It all starts with gender_age_combined.csv. This file was created by running the following SQL statement on the data that was provided to us.
+This assignment aims to perform binary classification on the generation (Millennial/Gen Z) of reddit posts' authors. It does so by performing feature selection and model: SVM, KNN and Logistic Regression. 
 
-SELECT DISTINCT birth_year.post, gender.auhtor_ID, gender.female, birth_year.birth_year
-FROM gender, birth_year
-WHERE gender.auhtor_ID == birth_year.auhtor_ID
+To run:
+1. Install virtual environment with requirements.txt
+2. Run models.py to obtain results (may take a while)
 
 
