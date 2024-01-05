@@ -9,11 +9,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV,  KFold
 from sklearn.linear_model import LogisticRegression
 
+data = pd.read_csv("data/balanced_features.csv")
+data = data.drop(["Unnamed: 0.2","Unnamed: 0.1","Unnamed: 0","auhtor_ID","post","birth_year","language"],axis=1)
 
-balanced_gen = pd.read_csv("data/balanced_gen_plus.csv")
-balanced_gen2 = balanced_gen[['Millennial','contraction count','exaggeration count','capital count','emoticon count','pronoun count','punctuation count','comma count','exclamation count','female']].copy()
-# create small sample for hyperparameter tuning
-sampled = balanced_gen2.sample(n=2000, random_state=42).reset_index(drop=True)
+sampled = data.sample(n=2000, random_state=42).reset_index(drop=True)
 X = sampled.drop("Millennial", axis=1)
 y = sampled["Millennial"]
 
@@ -53,8 +52,8 @@ chosen_solver = grid_search.best_params_['logistic__solver']
 
 #### Performing cross validation on entire dataset with chosen parameters
 
-X = balanced_gen2.drop("Millennial",axis=1)
-y = balanced_gen2["Millennial"]
+X = data.drop("Millennial", axis=1)
+y = data["Millennial"]
 
 X_train, X_test, y_train, y_test = train_test_split(X[selected_feature_names], y, test_size=0.2, random_state=42)
 model = LogisticRegression(penalty=chosen_penalty, C=chosen_C, solver=chosen_solver)
