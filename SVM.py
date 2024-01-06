@@ -52,3 +52,5 @@ def SVM(data):
     recall = recall_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     print(f"SVM --> Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-score: {f1}")
+
+    return y_test, y_pred

@@ -51,3 +51,5 @@ def kNN(data):
     recall = recall_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     print(f"kNN --> Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-score: {f1}")
+
+    return y_test, y_pred

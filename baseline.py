@@ -17,3 +17,5 @@ def baseline(data):
     recall = recall_score(data['Millennial'], majority_predict)
     f1 = f1_score(data['Millennial'], majority_predict)
     print(f"Majority --> Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-score: {f1}")
+
+    return data['Millennial'], majority_predict

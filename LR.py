@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_sc
 
 def logistic(data):
     # Read in dataset with all features and drop unnecessary columns
-    data = data.drop(["auhtor_ID","post","birth_year","language"],axis=1)
+    data = data.drop(["auhtor_ID","post","birth_year","language"], axis=1)
     # Define dependent and independent variable
     X = data.drop("Millennial", axis=1)
     y = data["Millennial"]
@@ -54,3 +54,5 @@ def logistic(data):
     recall = recall_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     print(f"LR --> Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-score: {f1}")
+
+    return y_test, y_pred
