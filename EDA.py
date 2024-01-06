@@ -2,9 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
-
-combined_gen = pd.read_csv("data/combined_gen.csv")
-
+from data_cleaning import combined_gen
 
 ### Get the number of posts made by males and females 
 count_female = len(combined_gen[combined_gen["female"] == 0])
