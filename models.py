@@ -1,6 +1,6 @@
-from knn2 import kNN
-from lr2 import logistic
-from svm2 import SVM
+from kNN import kNN
+from LR import logistic
+from SVM import SVM
 from baseline import baseline
 from feature_extraction import balanced_gen_features
 
