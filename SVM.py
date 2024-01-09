@@ -13,13 +13,13 @@ def SVM(data):
     y = data["Millennial"]
 
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
     # Create pipeline containing feature selection and hyper parameter tuning
     pipeline = Pipeline([
         ('feature_selection', SelectKBest(score_func=f_classif)), 
         ('scaler', StandardScaler()),
-        ('svm', SVC())
+        ('svm', SVC(random_state=53))
     ])
 
     param_grid = {

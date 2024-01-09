@@ -2,7 +2,7 @@ from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_sc
 
 def baseline(data):
     # Determine majority
-    majority_predict = []
+    majority_predict =[]
     for i in range(len(data)):
         # if author of post is female, predict majority generation of female authors
         if data['female'][i] == 1:
