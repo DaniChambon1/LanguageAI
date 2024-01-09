@@ -7,4 +7,4 @@ To run:
 1. Install virtual environment with requirements.txt
 2. Run models.py to obtain results (may take a while)
 
-
+This code can take some time to run. Data cleaning and Feature extraction take the longest. 
